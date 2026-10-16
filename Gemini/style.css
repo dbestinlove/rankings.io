@@ -1,0 +1,656 @@
+/* ============================================================================
+   Peak Times — Cyber-Vibe Modern Overhaul
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* ── 1. Cosmic Deep-Space Design System Tokens ──────────────────────────── */
+:root {
+  /* Core Palette */
+  --bg-dark: #05070e;
+  --bg-card: rgba(13, 18, 36, 0.65);
+  --bg-card-hover: rgba(22, 30, 56, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shine: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%);
+
+  /* Dynamic Off-Peak Holographic Neon Blue */
+  --off-glow: #00f0ff;
+  --off-a: #0052ff;
+  --off-b: #00f0ff;
+  --off-soft: rgba(0, 240, 255, 0.08);
+  --off-line: rgba(0, 240, 255, 0.25);
+  
+  /* Dynamic Peak Cyberpunk Red/Amber Hazard */
+  --peak-glow: #ff0055;
+  --peak-a: #ff0055;
+  --peak-b: #ff9900;
+  --peak-soft: rgba(ff, 0, 85, 0.08);
+  --peak-line: rgba(ff, 0, 85, 0.3);
+
+  /* Typography */
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Universal Shadows & FX */
+  --shadow-cyber: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --radius-xl: 28px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-pill: 9999px;
+}
+
+/* ── 2. State-Driven Dynamic Engine ──────────────────────────────────────── */
+:root,
+:root[data-state="off-peak"] {
+  --active-glow: var(--off-glow);
+  --active-a: var(--off-a);
+  --active-b: var(--off-b);
+  --active-soft: var(--off-soft);
+  --active-line: var(--off-line);
+  --state-text: #00f0ff;
+}
+
+:root[data-state="peak"] {
+  --active-glow: var(--peak-glow);
+  --active-a: var(--peak-a);
+  --active-b: var(--peak-b);
+  --active-soft: var(--peak-soft);
+  --active-line: var(--peak-line);
+  --state-text: #ff3377;
+}
+
+/* ── 3. Reset & Futuristic Mesh Canvas ──────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: #e2e8f0;
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 50% -20%, var(--active-soft) 0%, transparent 70%),
+    radial-gradient(circle at 10% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(255, 0, 85, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Cyber Ambient Scanline Effect */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* Dynamic Edge Aura */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  box-shadow: inset 0 0 60px var(--active-soft);
+  transition: box-shadow 0.6s ease;
+}
+
+/* ── 4. Sticky Holographic Header Banner ────────────────────────────────── */
+.state-banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem clamp(1rem, 4vw, 3rem);
+  background: rgba(5, 7, 14, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--active-line);
+  transition: border-color 0.6s ease;
+}
+
+.state-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--active-a), var(--active-b));
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px var(--active-soft);
+}
+
+.state-banner__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #000;
+  animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+.state-banner__text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.state-banner__text strong {
+  color: var(--active-glow);
+  text-shadow: 0 0 10px var(--active-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.state-banner__count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+}
+
+/* ── 5. App Shell & Layout ──────────────────────────────────────────────── */
+.app {
+  width: min(1140px, 100% - 2.5rem);
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 4rem) 0 6rem;
+  display: grid;
+  gap: 2rem;
+}
+
+/* ── 6. Futuristic Hero ─────────────────────────────────────────────────── */
+.hero {
+  text-align: left;
+  position: relative;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--active-soft);
+  border: 1px solid var(--active-line);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--active-glow);
+  box-shadow: 0 0 15px var(--active-soft);
+  transition: all 0.6s ease;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #fff 30%, var(--active-glow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  margin-top: 1.25rem;
+  max-width: 42rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+.hero-sub strong {
+  color: #f8fafc;
+}
+
+/* ── 7. Glassmorphic Live Status HUD Card ───────────────────────────────── */
+.status-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2rem, 4vw, 3rem);
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--active-line);
+  box-shadow: var(--shadow-cyber), 0 0 40px var(--active-soft);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.status-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--active-glow), transparent);
+}
+
+/* Ghost Ambient Watermark */
+.status-card::after {
+  content: "OFF-PEAK";
+  position: absolute;
+  right: -0.05em;
+  bottom: -0.25em;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 15vw, 10rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--active-glow);
+  opacity: 0.03;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.6s ease;
+}
+
+:root[data-state="peak"] .status-card::after {
+  content: "PEAK";
+  opacity: 0.05;
+}
+
+.status-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.6rem 1.8rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #000;
+  background: linear-gradient(135deg, var(--active-a), var(--active-b));
+  box-shadow: 0 0 30px var(--active-soft);
+  transition: all 0.6s ease;
+}
+
+.status-desc {
+  margin: 0;
+  font-size: 1rem;
+  color: #94a3b8;
+}
+
+.status-rate {
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-weight: 700;
+  color: var(--active-glow);
+}
+
+.status-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  position: relative;
+  z-index: 2;
+}
+
+.stat {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #64748b;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  font-weight: 700;
+  color: #f8fafc;
+  display: block;
+}
+
+.stat-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+  display: block;
+}
+
+/* ── 8. Interactive Control Dashboard ───────────────────────────────────── */
+.controls {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  padding: 1.75rem;
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-cyber);
+}
+
+.control label:not(.check) {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+select {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: #f8fafc;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: calc(100% - 1rem) center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--active-glow);
+  box-shadow: 0 0 15px var(--active-soft);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  color: #e2e8f0;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.check input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--active-glow);
+  cursor: pointer;
+}
+
+.hint {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ── 9. Panels & Visual Week Timeline ───────────────────────────────────── */
+.panel {
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-cyber);
+}
+
+.panel-head {
+  margin-bottom: 2rem;
+}
+
+.panel-head h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.panel-sub {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.week {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.day {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.day-name {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-align: right;
+}
+
+.day.is-today .day-name {
+  color: var(--active-glow);
+  text-shadow: 0 0 10px var(--active-soft);
+}
+
+.track {
+  position: relative;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+.block {
+  position: absolute;
+  top: 3px; bottom: 3px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--peak-a), var(--peak-b));
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
+}
+
+.day.is-weekend .block,
+.day.is-holiday .block {
+  display: none;
+}
+
+.ticks i {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.now-marker {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: #ffffff;
+  box-shadow: 0 0 12px #ffffff, 0 0 20px var(--active-glow);
+  z-index: 5;
+}
+
+.axis {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.axis-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #475569;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--glass-border);
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 4px;
+}
+
+.dot-peak { background: linear-gradient(135deg, var(--peak-a), var(--peak-b)); }
+.dot-off { background: rgba(0, 240, 255, 0.2); border: 1px solid var(--off-glow); }
+.dot-now { background: #fff; box-shadow: 0 0 8px #fff; border-radius: 50%; }
+
+/* ── 10. Modern Pricing Matrix ─────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+}
+
+.rates {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.rates th, .rates td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.rates thead th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.rates tbody tr {
+  transition: background 0.2s ease;
+}
+
+.rates tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rates .model {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--active-glow);
+}
+
+.rates td {
+  font-family: var(--font-mono);
+  color: #cbd5e1;
+}
+
+/* ── 11. Footer / Good To Know ──────────────────────────────────────────── */
+.notes {
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+}
+
+.notes h2 {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.notes ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.notes strong {
+  color: #e2e8f0;
+}
