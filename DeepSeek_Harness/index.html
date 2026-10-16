@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-state="off-peak" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<meta name="theme-color" id="themeColor" content="#4d6bfe" />
+<meta name="description" content="Live countdown to DeepSeek API off-peak hours (50% off), in your time zone. Peak: 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday." />
+<title>Peak Hours · DeepSeek off-peak countdown</title>
+<link rel="icon" id="favicon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234d6bfe'/%3E%3Ccircle cx='16' cy='16' r='6' fill='white'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body id="top">
+
+<!-- ── ambient background ─────────────────────────────────────────────── -->
+<div class="fx" aria-hidden="true">
+  <span class="fx__blob fx__blob--1"></span>
+  <span class="fx__blob fx__blob--2"></span>
+  <span class="fx__blob fx__blob--3"></span>
+  <span class="fx__grid"></span>
+  <span class="fx__noise"></span>
+  <span class="fx__vignette"></span>
+</div>
+<div class="glow" id="cursorGlow" aria-hidden="true"></div>
+<div class="burst-layer" id="burstLayer" aria-hidden="true"></div>
+
+<p class="sr-only" id="stateAnnounce" role="status" aria-live="polite">Off-peak hours. Rates are 50% off.</p>
+
+<!-- ── top bar ─────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <a class="brand" href="#top">
+    <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="brand__text">Peak<em>Hours</em></span>
+  </a>
+
+  <div class="topbar__state">
+    <span class="pill" id="bannerBadge">
+      <i class="pill__dot" aria-hidden="true"></i>
+      <span id="bannerBadgeText">Off-peak</span>
+    </span>
+    <span class="topbar__count" id="bannerCount">changes in --:--:--</span>
+  </div>
+
+  <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch colour theme" title="Switch theme (T)">
+    <svg class="icon-btn__sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.4"></circle>
+      <g stroke-linecap="round">
+        <path d="M12 2.2v2.6M12 19.2v2.6M2.2 12h2.6M19.2 12h2.6M5.1 5.1l1.9 1.9M17 17l1.9 1.9M18.9 5.1L17 7M7 17l-1.9 1.9"></path>
+      </g>
+    </svg>
+    <svg class="icon-btn__moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"></path>
+    </svg>
+  </button>
+</header>
+
+<main class="app">
+
+  <!-- ── hero ──────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow reveal"><i aria-hidden="true"></i>DeepSeek API · pricing clock</p>
+      <h1 class="reveal">Know the <span class="grad">cheap hours</span> before you hit send.</h1>
+      <p class="hero__sub reveal">
+        Peak pricing is pinned to <strong>UTC</strong> — <strong>01:00–04:00</strong> and
+        <strong>06:00–10:00</strong>, Monday to Friday. Everything else, weekends
+        included, is off-peak and costs <strong>exactly half</strong>.
+      </p>
+
+      <div class="toolbar card reveal" data-spot>
+        <div class="field">
+          <label for="tzSelect">Your time zone</label>
+          <div class="select-wrap">
+            <select id="tzSelect"></select>
+            <svg class="select-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <p class="hint" id="tzHint">—</p>
+        </div>
+
+        <div class="field">
+          <label class="switch" for="holidayToggle">
+            <input type="checkbox" id="holidayToggle" />
+            <span class="switch__ui" aria-hidden="true"></span>
+            <span class="switch__label">Chinese public holiday today</span>
+          </label>
+          <p class="hint">DeepSeek waives peak pricing for the whole day on CN public holidays. Flip it on those days — it clears itself at local midnight.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__dial reveal">
+      <div class="dial card" id="dialCard" data-spot>
+        <svg class="dial__svg" viewBox="0 0 360 360" role="img"
+             aria-label="A 24-hour dial showing today's peak windows in your local time, with a needle at the current time.">
+          <defs>
+            <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop id="arcGradA" offset="0"></stop>
+              <stop id="arcGradB" offset="1"></stop>
+            </linearGradient>
+          </defs>
+          <circle class="dial__track" cx="180" cy="180" r="150"></circle>
+          <g id="dialArcs"></g>
+          <g id="dialTicks"></g>
+          <g class="dial__needle" id="dialNeedle">
+            <line x1="180" y1="180" x2="180" y2="58"></line>
+            <circle cx="180" cy="180" r="7.5"></circle>
+          </g>
+          <circle class="dial__utcdot" id="dialUtcDot" cx="180" cy="12" r="5.5"></circle>
+        </svg>
+
+        <div class="dial__center">
+          <span class="dial__label" id="dialLabel">until peak</span>
+          <span class="dial__time"><span id="dialCount">--:--:--</span><small id="dialMs">.00</small></span>
+          <span class="dial__day" id="dialDay">—</span>
+        </div>
+
+        <div class="dial__legend">
+          <span><i class="sw sw--peak" aria-hidden="true"></i>Peak</span>
+          <span><i class="sw sw--off" aria-hidden="true"></i>Off-peak</span>
+          <span><i class="sw sw--now" aria-hidden="true"></i>You</span>
+          <span><i class="sw sw--utc" aria-hidden="true"></i>UTC</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ticker ────────────────────────────────────────────────────────── -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track" id="tickerTrack"></div>
+  </div>
+
+  <!-- ── bento ─────────────────────────────────────────────────────────── -->
+  <div class="bento">
+
+    <section class="card status" id="statusCard" aria-label="Current pricing state" data-spot>
+      <div class="status__head">
+        <span class="badge" id="statusBadge">Off-peak</span>
+        <button class="ghost-btn" id="copyBtn" type="button">Copy status</button>
+      </div>
+      <p class="status__desc" id="statusDesc">—</p>
+      <p class="status__rate" id="statusRate">—</p>
+
+      <div class="status__grid">
+        <div class="stat">
+          <span class="stat__label">Your local time</span>
+          <span class="stat__value" id="localClock">--:--:--</span>
+          <span class="stat__sub" id="localDate">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">UTC reference</span>
+          <span class="stat__value" id="utcClock">--:--:--</span>
+          <span class="stat__sub" id="utcDate">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label" id="nextLabel">Next change</span>
+          <span class="stat__value" id="countdown">--:--:--</span>
+          <span class="stat__sub" id="nextAt">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card calc" aria-label="Savings calculator" data-spot>
+      <div class="card__head">
+        <h2>What it's costing you</h2>
+        <div class="seg" role="group" aria-label="Choose a model">
+          <button type="button" class="seg__btn is-on" data-model="flash">flash</button>
+          <button type="button" class="seg__btn" data-model="pro">v4-pro</button>
+        </div>
+      </div>
+
+      <div class="calc__rows">
+        <label class="range" for="hitRange">
+          <span class="range__top"><span>Cache-hit input</span><em id="hitOut">0 K</em></span>
+          <input type="range" id="hitRange" min="0" max="1000" step="10" value="0" />
+        </label>
+        <label class="range" for="missRange">
+          <span class="range__top"><span>Cache-miss input</span><em id="missOut">800 K</em></span>
+          <input type="range" id="missRange" min="0" max="2000" step="10" value="800" />
+        </label>
+        <label class="range" for="outRange">
+          <span class="range__top"><span>Output</span><em id="outOut">250 K</em></span>
+          <input type="range" id="outRange" min="0" max="1000" step="10" value="250" />
+        </label>
+      </div>
+
+      <div class="calc__out">
+        <div class="money money--off" id="moneyOff">
+          <span>Off-peak</span><strong id="costOff">—</strong>
+        </div>
+        <div class="money money--peak" id="moneyPeak">
+          <span>Peak</span><strong id="costPeak">—</strong>
+        </div>
+        <div class="money money--save">
+          <span id="saveLabel">Difference</span><strong id="costSave">—</strong>
+        </div>
+      </div>
+      <p class="calc__note" id="calcNote">—</p>
+    </section>
+
+    <section class="card weekcard" data-spot>
+      <div class="card__head">
+        <h2>Week at a glance</h2>
+        <p class="card__sub" id="weekSub">—</p>
+      </div>
+      <div class="week" id="week"></div>
+      <div class="legend">
+        <span class="legend__item"><i class="sw sw--peak" aria-hidden="true"></i> Peak — full rate</span>
+        <span class="legend__item"><i class="sw sw--off" aria-hidden="true"></i> Off-peak — 50% off</span>
+        <span class="legend__item"><i class="sw sw--now" aria-hidden="true"></i> Right now</span>
+      </div>
+    </section>
+
+    <section class="card worldcard" data-spot>
+      <div class="card__head"><h2>Around the world</h2></div>
+      <ul class="world" id="worldClocks"></ul>
+    </section>
+
+    <section class="card ratescard" data-spot>
+      <div class="card__head">
+        <h2>Rates</h2>
+        <p class="card__sub">USD per 1M tokens · <strong>off-peak / peak</strong></p>
+      </div>
+      <div class="table-wrap">
+        <table class="rates">
+          <thead>
+            <tr>
+              <th scope="col">Model</th>
+              <th scope="col">Input<small>cache hit</small></th>
+              <th scope="col">Input<small>cache miss</small></th>
+              <th scope="col">Output</th>
+              <th scope="col">Concurrency</th>
+            </tr>
+          </thead>
+          <tbody id="ratesBody"></tbody>
+        </table>
+      </div>
+      <p class="rates__foot">The <b class="hl-off">blue</b> figure is what you pay right now.</p>
+    </section>
+
+    <section class="card notescard" data-spot>
+      <div class="card__head"><h2>Good to know</h2></div>
+      <ul class="notes">
+        <li><strong>Off-peak = 50% of peak.</strong> Peak hours are 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday.</li>
+        <li><strong>Weekends are always off-peak</strong> — the whole of Saturday and Sunday UTC, all day.</li>
+        <li><strong>Chinese public holidays are off-peak</strong> for the full day. Dates follow the State Council calendar and aren't computed here — use the toggle above.</li>
+        <li>Fees are deducted from your granted balance first, then your topped-up balance.</li>
+        <li>Prices can change; DeepSeek reserves the right to adjust them.</li>
+      </ul>
+      <p class="shortcuts">
+        <kbd>T</kbd> theme
+        <kbd>H</kbd> holiday
+        <kbd>U</kbd> UTC
+        <kbd>L</kbd> local
+        <kbd>/</kbd> focus zone
+      </p>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    <span>Built for people who ship at 3am.</span>
+    <span class="footer__dot" aria-hidden="true">·</span>
+    <span>Times recalculated every frame in your browser.</span>
+  </footer>
+
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<noscript>
+  <p style="padding:1rem;text-align:center">This page needs JavaScript to compute the live peak/off-peak state.</p>
+</noscript>
+
+<script src="app.js"></script>
+</body>
+</html>
