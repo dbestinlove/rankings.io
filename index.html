@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-state="off-peak">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" id="themeColor" content="#22d3ee" />
+<title>DeepSeek API — Peak &amp; Off-Peak Hours for Your Location</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ambient layers -->
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"><i></i></div>
+<div class="hud hud--tl" aria-hidden="true"></div>
+<div class="hud hud--tr" aria-hidden="true"></div>
+<div class="hud hud--bl" aria-hidden="true"></div>
+<div class="hud hud--br" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><i class="cursor__ring"></i><i class="cursor__dot"></i></div>
+
+<!-- sticky state banner -->
+<div class="state-banner" id="stateBanner">
+  <span class="state-banner__badge">
+    <i class="state-banner__dot" aria-hidden="true"></i>
+    <span id="bannerBadge">Off-peak</span>
+  </span>
+  <span class="state-banner__text" id="bannerText">
+    <strong>50% off</strong> — you are in off-peak hours
+  </span>
+  <span class="state-banner__count" id="bannerCount">changes in --:--:--</span>
+</div>
+
+<!-- ticker -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track" id="tickerTrack"></div>
+</div>
+
+<p class="sr-only" id="stateAnnounce">Off-peak hours.</p>
+
+<main class="app">
+
+  <header class="hero" data-reveal>
+    <p class="eyebrow"><i class="eyebrow__led" aria-hidden="true"></i>DeepSeek API · live rate monitor</p>
+    <h1>Peak &amp; off-peak hours<br><span class="hero__accent" id="heroAccent">in your time zone</span></h1>
+    <p class="hero-sub">
+      Peak windows are fixed in <strong>UTC</strong> — <strong>01:00–04:00</strong> and
+      <strong>06:00–10:00</strong>, Monday to Friday, excluding Chinese public holidays.
+      Everything else is off-peak, and off-peak costs <strong>exactly half</strong>.
+    </p>
+  </header>
+
+  <!-- live status -->
+  <section class="status-card" id="statusCard" data-state="off-peak" data-reveal aria-label="Current pricing state">
+    <div class="status-card__orbit" aria-hidden="true">
+      <svg class="ring" viewBox="0 0 140 140">
+        <circle class="ring__track" cx="70" cy="70" r="60"></circle>
+        <circle class="ring__fill" id="ringFill" cx="70" cy="70" r="60"></circle>
+      </svg>
+      <div class="orbit-core">
+        <span class="orbit-core__state" id="orbitState">OFF-PEAK</span>
+        <span class="orbit-core__label">current rate</span>
+      </div>
+    </div>
+
+    <div class="status-card__main">
+      <div class="status-top">
+        <span class="badge" id="statusBadge">Off-peak</span>
+        <div class="status-copy">
+          <p class="status-desc" id="statusDesc">—</p>
+          <p class="status-rate" id="statusRate">—</p>
+        </div>
+      </div>
+      <div class="status-grid">
+        <div class="stat">
+          <span class="stat-label">Your local time</span>
+          <span class="stat-value"><span class="digits" id="localClock" aria-hidden="true"></span><span class="sr-only" id="localClockSr"></span></span>
+          <span class="stat-sub" id="localDate">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">UTC · reference</span>
+          <span class="stat-value"><span class="digits" id="utcClock" aria-hidden="true"></span><span class="sr-only" id="utcClockSr"></span></span>
+          <span class="stat-sub" id="utcDate">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" id="nextLabel">Next change</span>
+          <span class="stat-value"><span class="digits" id="countdown" aria-hidden="true"></span><span class="sr-only" id="countdownSr"></span></span>
+          <span class="stat-sub" id="nextAt">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- controls -->
+  <section class="controls" data-reveal aria-label="Settings">
+    <div class="control">
+      <label for="tzSelect">Your location / time zone</label>
+      <select id="tzSelect"></select>
+      <p class="hint" id="tzHint">—</p>
+    </div>
+    <div class="control">
+      <label class="check" for="holidayToggle">
+        <span class="radar" aria-hidden="true"><i></i></span>
+        <input type="checkbox" id="holidayToggle" />
+        <span>Today is a Chinese public holiday</span>
+      </label>
+      <p class="hint">DeepSeek waives peak pricing for the whole day on Chinese public holidays. Flip this on those days.</p>
+    </div>
+  </section>
+
+  <!-- week view -->
+  <section class="panel" data-reveal>
+    <div class="panel-head">
+      <h2>Week at a glance</h2>
+      <p class="panel-sub" id="weekSub">—</p>
+    </div>
+
+    <div class="week" id="week"></div>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot dot-peak"></i> Peak — full rate</span>
+      <span class="legend-item"><i class="dot dot-off"></i> Off-peak — 50% off</span>
+      <span class="legend-item"><i class="dot dot-now"></i> Right now</span>
+    </div>
+  </section>
+
+  <!-- cost calculator -->
+  <section class="panel calc" data-reveal>
+    <div class="panel-head">
+      <h2>Cost calculator</h2>
+      <p class="panel-sub">Live — priced at the <strong id="calcStateWord">current off-peak</strong> rate</p>
+    </div>
+
+    <div class="calc-grid">
+      <div class="calc-inputs">
+        <div class="control">
+          <label for="calcModel">Model</label>
+          <select id="calcModel"></select>
+        </div>
+        <div class="control">
+          <label for="calcInput">Input tokens <output class="calc-out" id="calcInputOut" for="calcInput">1.0M</output></label>
+          <input type="range" id="calcInput" min="0" max="20" step="0.25" value="1" />
+        </div>
+        <div class="control">
+          <label for="calcCache">Cache-hit ratio <output class="calc-out" id="calcCacheOut" for="calcCache">30%</output></label>
+          <input type="range" id="calcCache" min="0" max="100" step="5" value="30" />
+        </div>
+        <div class="control">
+          <label for="calcOutput">Output tokens <output class="calc-out" id="calcOutputOut" for="calcOutput">0.5M</output></label>
+          <input type="range" id="calcOutput" min="0" max="10" step="0.25" value="0.5" />
+        </div>
+      </div>
+      <div class="calc-results">
+        <div class="calc-line">
+          <span class="calc-line__label">Off-peak cost</span>
+          <span class="calc-line__value" id="calcOff">$0.0000</span>
+        </div>
+        <div class="calc-line">
+          <span class="calc-line__label">Peak cost</span>
+          <span class="calc-line__value" id="calcPeak">$0.0000</span>
+        </div>
+        <div class="calc-total">
+          <span class="calc-total__label" id="calcVerdict">You save right now</span>
+          <span class="calc-total__value" id="calcSave">$0.0000</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- rates -->
+  <section class="panel" data-reveal>
+    <div class="panel-head">
+      <h2>Rates</h2>
+      <p class="panel-sub">USD per 1M tokens · shown as <strong>off-peak / peak</strong></p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="rates">
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Input<br><small>cache hit</small></th>
+            <th scope="col">Input<br><small>cache miss</small></th>
+            <th scope="col">Output</th>
+            <th scope="col">Concurrency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><span class="model">deepseek-flash</span><small>DeepSeek-V4.1-Flash</small></th>
+            <td>$0.003 / $0.006</td>
+            <td>$0.15 / $0.30</td>
+            <td>$0.60 / $1.20</td>
+            <td>2,500</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="model">deepseek-v4-pro</span><small>DeepSeek-V4-Pro-0813</small></th>
+            <td>$0.022 / $0.044</td>
+            <td>$0.66 / $1.32</td>
+            <td>$1.98 / $3.96</td>
+            <td>500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- notes -->
+  <footer class="notes" data-reveal>
+    <h2>Good to know</h2>
+    <ul>
+      <li><strong>Off-peak = 50% of peak.</strong> Peak hours are 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday.</li>
+      <li><strong>Weekends are always off-peak</strong> — the entire Saturday and Sunday, all day.</li>
+      <li><strong>Chinese public holidays are off-peak</strong> for the full day. Dates follow the State Council calendar and aren't computed here — use the toggle above.</li>
+      <li>Fees are deducted from your granted balance first, then your topped-up balance.</li>
+      <li>Prices can change; DeepSeek reserves the right to adjust them.</li>
+    </ul>
+  </footer>
+
+</main>
+
+<div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
