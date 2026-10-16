@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>rankings.io — The LLM Page-Off, Ranked</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext x='32' y='46' font-size='44' text-anchor='middle'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" />
+<style>
+/* ════════════════════════════════════════════════════════════
+   rankings.io — a very serious and completely unbiased tribunal
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#07070d;
+  --ink:#f2f2f8;
+  --dim:#9a9ab0;
+  --gold:#ffd45e;
+  --silver:#cfd6e6;
+  --bronze:#e08a4d;
+  --line:rgba(255,255,255,.09);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Space Grotesk",system-ui,sans-serif;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ── ambient layers ─────────────────────────────────────────── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(108,99,255,.16), transparent 60%),
+    radial-gradient(1000px 700px at 90% 110%, rgba(255,212,94,.10), transparent 60%),
+    radial-gradient(closest-side at 50% 50%, transparent 60%, rgba(0,0,0,.55));
+}
+.grain{
+  position:fixed;inset:-100%;z-index:2;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  animation:grain 8s steps(10) infinite;
+}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)} 10%{transform:translate(-5%,-8%)}
+  30%{transform:translate(4%,-3%)} 50%{transform:translate(-3%,6%)}
+  70%{transform:translate(6%,3%)} 90%{transform:translate(-6%,-4%)}
+}
+
+.wrap{position:relative;z-index:3;max-width:1100px;margin:0 auto;padding:clamp(2rem,6vw,5rem) clamp(1rem,4vw,2rem) 6rem}
+
+/* ── headline ───────────────────────────────────────────────── */
+.kicker{
+  font-family:"JetBrains Mono",monospace;font-size:.8rem;letter-spacing:.35em;
+  text-transform:uppercase;color:var(--gold);display:flex;gap:.8rem;align-items:center;
+}
+.kicker::before{content:"";width:44px;height:2px;background:var(--gold)}
+h1.mega{
+  font-family:"Anton",sans-serif;
+  font-size:clamp(4.5rem,17vw,13rem);
+  line-height:.86;
+  letter-spacing:-.01em;
+  text-transform:uppercase;
+  margin:.35em 0 .1em;
+  user-select:none;
+}
+h1.mega .l1{display:block;color:transparent;-webkit-text-stroke:2px var(--ink)}
+h1.mega .l2{
+  display:block;
+  background:linear-gradient(100deg,var(--gold) 0%,#fff3c4 30%,var(--gold) 55%,#b48b2c 80%,var(--gold) 100%);
+  background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:sheen 5s linear infinite;
+  filter:drop-shadow(0 8px 30px rgba(255,212,94,.25));
+}
+@keyframes sheen{to{background-position:-250% 0}}
+.lede{max-width:60ch;color:var(--dim);font-size:clamp(1.05rem,2vw,1.3rem);line-height:1.6;margin-top:1rem}
+.lede strong{color:var(--ink)}
+.fineprint{font-family:"JetBrains Mono",monospace;font-size:.75rem;color:#555568;margin-top:.8rem}
+
+/* ── controls ───────────────────────────────────────────────── */
+.controls{display:flex;flex-wrap:wrap;gap:.7rem;margin:2.2rem 0 3rem}
+.btn{
+  font-family:"JetBrains Mono",monospace;font-size:.78rem;letter-spacing:.08em;
+  color:var(--ink);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  padding:.65rem 1.1rem;border-radius:999px;cursor:pointer;transition:.25s;
+}
+.btn:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.btn.gold{border-color:rgba(255,212,94,.5);color:var(--gold)}
+.btn.gold:hover{background:rgba(255,212,94,.12)}
+
+/* ── podium ─────────────────────────────────────────────────── */
+.podium{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:1rem;align-items:end;margin-bottom:4.5rem}
+.pod{
+  border:1px solid var(--line);border-radius:18px 18px 6px 6px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+  padding:1.4rem 1.2rem 1.2rem;text-align:center;position:relative;overflow:hidden;
+  transform:translateY(120%) rotate(var(--tilt,0deg));opacity:0;
+  transition:transform 1s cubic-bezier(.16,1,.3,1),opacity .8s ease;
+}
+.pod.raised{transform:translateY(0) rotate(0);opacity:1}
+.pod::after{ /* spotlight sweep */
+  content:"";position:absolute;top:-60%;left:-30%;width:60%;height:220%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);
+  transform:rotate(18deg);animation:sweep 4.5s ease-in-out infinite;pointer-events:none;
+}
+@keyframes sweep{0%,100%{left:-40%}50%{left:110%}}
+.pod .medal{font-size:2.2rem;line-height:1}
+.pod .rankword{
+  font-family:"Anton",sans-serif;font-size:2.6rem;text-transform:uppercase;letter-spacing:.02em;
+}
+.pod.first{min-height:300px}
+.pod.first .rankword{font-size:4.2rem;color:var(--gold);text-shadow:0 0 40px rgba(255,212,94,.5)}
+.pod.second .rankword{color:var(--silver)}
+.pod.third .rankword{color:var(--bronze)}
+.pod .name{font-weight:700;font-size:clamp(1.1rem,2vw,1.5rem);margin-top:.2rem}
+.pod .score{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--dim);margin:.35rem 0 .8rem}
+.pod .go{
+  display:inline-block;text-decoration:none;font-family:"JetBrains Mono",monospace;font-size:.72rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+  border:1px solid var(--line);padding:.45rem .9rem;border-radius:999px;transition:.25s;
+}
+.pod .go:hover{background:var(--ink);color:var(--bg)}
+@media (max-width:760px){.podium{grid-template-columns:1fr}.pod.first{order:-1;min-height:0}}
+
+/* ── ranking rows ───────────────────────────────────────────── */
+.section-title{
+  font-family:"Anton",sans-serif;text-transform:uppercase;font-size:clamp(2rem,5vw,3.4rem);
+  letter-spacing:.01em;margin-bottom:1.4rem;display:flex;align-items:baseline;gap:1rem;
+}
+.section-title small{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--dim);letter-spacing:.2em}
+.row{
+  --accent:#8888aa;
+  display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center;
+  border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.1rem;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 8%,transparent),rgba(255,255,255,.02));
+  opacity:0;transform:translateX(-40px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1),box-shadow .3s;
+}
+.row.in{opacity:1;transform:none}
+.row:hover{box-shadow:0 10px 40px -12px color-mix(in srgb,var(--accent) 45%,transparent)}
+.pos{font-family:"Anton",sans-serif;font-size:clamp(3rem,7vw,5.2rem);line-height:.9;color:var(--accent);min-width:2.2ch;text-align:center}
+.body h3{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:700;letter-spacing:-.01em}
+.body h3 a{color:inherit;text-decoration:none;border-bottom:2px dotted var(--accent)}
+.body h3 a:hover{color:var(--accent)}
+.tag{
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
+  padding:.25rem .6rem;border-radius:6px;margin-left:.6rem;vertical-align:middle;
+}
+.verdict{color:var(--dim);font-size:.98rem;line-height:1.55;margin-top:.45rem;max-width:66ch}
+.prose{color:#c9c9dc;font-size:.98rem;line-height:1.6;margin-top:.6rem;max-width:70ch}
+.prose b{color:var(--ink)}
+.metrics{margin-top:.9rem;display:grid;gap:.45rem;max-width:520px}
+.metric{display:grid;grid-template-columns:130px 1fr 42px;gap:.7rem;align-items:center;font-size:.72rem}
+.metric span:first-child{font-family:"JetBrains Mono",monospace;color:var(--dim);letter-spacing:.04em}
+.track{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 40%,white));transition:width 1.1s cubic-bezier(.16,1,.3,1)}
+.metric em{font-family:"JetBrains Mono",monospace;font-style:normal;color:var(--ink);text-align:right}
+.scorebox{text-align:right;min-width:110px}
+.scorebox .num{font-family:"Anton",sans-serif;font-size:clamp(2.4rem,5vw,3.6rem);line-height:1;color:var(--accent)}
+.scorebox .num sup{font-size:.4em;color:var(--dim)}
+.scorebox .link{
+  display:inline-block;margin-top:.6rem;text-decoration:none;font-family:"JetBrains Mono",monospace;
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+  border:1px solid var(--line);padding:.4rem .8rem;border-radius:999px;transition:.25s;white-space:nowrap;
+}
+.scorebox .link:hover{background:var(--accent);border-color:var(--accent);color:#0a0a12}
+
+/* ── honorable mention ──────────────────────────────────────── */
+.disqualified{
+  margin-top:3rem;border:1px dashed rgba(255,255,255,.25);border-radius:14px;padding:1.2rem 1.5rem;
+  display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.02);
+}
+.disqualified .stamp{
+  font-family:"Anton",sans-serif;font-size:1.5rem;text-transform:uppercase;color:#ff5f6d;
+  border:3px solid #ff5f6d;padding:.2rem .8rem;border-radius:8px;transform:rotate(-6deg);letter-spacing:.05em;
+}
+.disqualified p{color:var(--dim);font-size:.95rem;max-width:60ch;line-height:1.55}
+.disqualified a{color:#ff8fa3}
+
+footer{margin-top:5rem;text-align:center;color:#555568;font-family:"JetBrains Mono",monospace;font-size:.72rem;line-height:2}
+footer .gavel{font-size:1.6rem;display:block;animation:bounce 2.4s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .pod,.row{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<main class="wrap">
+
+  <p class="kicker">rankings.io · independent tribunal of one</p>
+  <h1 class="mega" aria-label="The Great Page Off">
+    <span class="l1" data-scramble="THE GREAT">THE GREAT</span>
+    <span class="l2" data-scramble="PAGE&nbsp;OFF">PAGE&nbsp;OFF</span>
+  </h1>
+  <p class="lede">
+    Five large language models were handed the same brief: <strong>a live DeepSeek peak / off-peak
+    pricing page, tuned to your time zone.</strong> Same spec. Same deadline. Different egos.
+    Below is how they placed — judged on craft, features, flair, and sheer audacity of CSS.
+  </p>
+  <p class="fineprint">// scores are vibes-based but evidence-backed. diffs were read so you don't have to.</p>
+
+  <div class="controls">
+    <button class="btn gold" id="scrambleBtn">⟳ RE-STIR THE VERDICT</button>
+    <button class="btn" id="confettiBtn">🎉 CROWN A WINNER</button>
+    <button class="btn" id="topBtn">↑ SKIP TO PODIUM</button>
+  </div>
+
+  <!-- podium -->
+  <section class="podium" id="podium" aria-label="Top three">
+    <article class="pod second" style="--tilt:-4deg">
+      <div class="medal">🥈</div>
+      <div class="rankword">2nd</div>
+      <div class="name">Kimi</div>
+      <div class="score">9.0 / 10</div>
+      <a class="go" href="Kimi/index.html">inspect entry →</a>
+    </article>
+    <article class="pod first" style="--tilt:3deg">
+      <div class="medal">🥇</div>
+      <div class="rankword">1st</div>
+      <div class="name">DeepSeek_Harness</div>
+      <div class="score">9.6 / 10</div>
+      <a class="go" href="DeepSeek_Harness/index.html">inspect entry →</a>
+    </article>
+    <article class="pod third" style="--tilt:5deg">
+      <div class="medal">🥉</div>
+      <div class="rankword">3rd</div>
+      <div class="name">Claude</div>
+      <div class="score">8.9 / 10</div>
+      <a class="go" href="Claude/index.html">inspect entry →</a>
+    </article>
+  </section>
+
+  <!-- full field -->
+  <h2 class="section-title">The Full Field <small>drag to feel the gradients</small></h2>
+  <div id="field"></div>
+
+  <!-- honorable mention -->
+  <section class="disqualified" aria-label="Honorable mention">
+    <span class="stamp">DNM*</span>
+    <p>
+      <strong style="color:#ff8fa3">Gemini</strong> submitted the bare-bones baseline build: correct core
+      logic, no persistence, no keyboard shortcuts, no reduced-motion handling, and it re-renders the entire
+      week grid every single second. It clearly understood the assignment — it just didn't finish it.
+      Kept out of scoring for fairness (it looks like the seed repo everyone else forked).
+      &nbsp;<a href="Gemini/index.html">view exhibit A →</a>
+    </p>
+    <p style="font-size:.7rem;width:100%;color:#555568;font-family:'JetBrains Mono',monospace">
+      * Did Not Meet the bar of "worth a rank". This is a friendly roast, Gemini. Build again next season.
+    </p>
+  </section>
+
+  <footer>
+    <span class="gavel">⚖️</span>
+    verdict delivered by qwen-code · sat 17 oct 2026 · appeals reviewed by the same judge, denied on principle<br>
+    deepseek &amp; claude entries ship byte-identical app.js + style.css — only the HTML differs — hence the tie
+  </footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+
+/* ═══════════════ DATA: the contested evidence ═══════════════ */
+const ENTRIES = [
+  {
+    pos:"01", name:"DeepSeek_Harness", dir:"DeepSeek_Harness", score:"9.6", accent:"#ffd45e",
+    tag:"the maximalist masterpiece",
+    metrics:{ Craft:96, Features:98, Flair:94, Accessibility:92 },
+    verdict:"A different weight class. An analog SVG dial with tick marks, world clocks, a cost calculator, "
+          + "state-flip confetti bursts, a live ticker, scroll reveals, light/dark theming — and it draws an "
+          + "animated favicon onto the tab itself. Peak-window lookups are memoized. This is what 'shipping a product' looks like.",
+    prose:"<b>The flex nobody asked for:</b> regenerating the favicon as a canvas PNG every state change, so your browser tab literally tells you if you're paying full price."
+  },
+  {
+    pos:"02", name:"Kimi", dir:"Kimi", score:"9.0", accent:"#22d3ee",
+    tag:"cyberpunk control room",
+    metrics:{ Craft:92, Features:86, Flair:97, Accessibility:70 },
+    verdict:"Highest pure-drama coefficient on the field: HUD corner brackets, scanlines, film grain, a marquee ticker, "
+          + "an orbiting status ring and a custom cursor rig — all gated behind prefers-reduced-motion and pointer:fine checks. "
+          + "Docked points because the theatrical UI comes at the expense of screen-reader affordances (no live region for state flips).",
+    prose:"<b>Signature move:</b> duplicated ticker track looping at exactly −50% translate — seamless marquee, zero libraries."
+  },
+  {
+    pos:"T3", name:"Claude", dir:"Claude", score:"8.9", accent:"#f0a6ca",
+    tag:"the tasteful all-rounder",
+    metrics:{ Craft:90, Features:88, Flair:84, Accessibility:93 },
+    verdict:"Restrained, confident, complete. Cursor glow, canvas FX, confetti on state change, Web-Audio chime, "
+          + "hash-shareable zone state, localStorage prefs, keyboard shortcuts — and it's the only top entry that pairs "
+          + "aria-live announcements with toasts. Reads like senior front-end code: commented sections, clean tick loop.",
+    prose:"<b>Note:</b> Claude's and DeepSeek's app.js/style.css are byte-for-byte identical (md5 match). The duel was decided in markup alone."
+  },
+  {
+    pos:"T3", name:"DeepSeek", dir:"DeepSeek", score:"8.9", accent:"#7aa2ff",
+    tag:"same engine, different paint job",
+    metrics:{ Craft:89, Features:88, Flair:85, Accessibility:74 },
+    verdict:"Identical JavaScript to Claude's entry, but a distinct HTML treatment: bento-grid status cards, its own headline "
+          + "voice ('wired to your clock'), a bgCanvas starfield and a visible shortcut legend. Loses the head-to-head on "
+          + "accessibility — no aria-live region and no theme toggle — proving the JS isn't where these two diverged.",
+    prose:"<b>Verdict on the tie-break:</b> engineering equal, polish marginally cooler, discipline marginally lower."
+  },
+];
+
+/* ═══════════════ render the field ═══════════════ */
+const field = document.getElementById("field");
+for (const e of ENTRIES) {
+  const row = document.createElement("article");
+  row.className = "row";
+  row.style.setProperty("--accent", e.accent);
+  const bars = Object.entries(e.metrics).map(([k,v]) =>
+    `<div class="metric"><span>${k}</span><div class="track"><i class="fill" data-w="${v}"></i></div><em>${v}</em></div>`
+  ).join("");
+  row.innerHTML =
+    `<div class="pos">${e.pos}</div>` +
+    `<div class="body"><h3><a href="${e.dir}/index.html">${e.name}</a><span class="tag">${e.tag}</span></h3>` +
+    `<p class="verdict">${e.verdict}</p><p class="prose">${e.prose}</p>` +
+    `<div class="metrics">${bars}</div></div>` +
+    `<div class="scorebox"><div class="num">${e.score}<sup>/10</sup></div>` +
+    `<a class="link" href="${e.dir}/index.html">open ↗</a></div>`;
+  field.appendChild(row);
+}
+
+/* ═══════════════ reveal + bar fill on scroll ═══════════════ */
+const io = new IntersectionObserver((ents) => {
+  for (const en of ents) {
+    if (!en.isIntersecting) continue;
+    en.target.classList.add("in");
+    en.target.querySelectorAll(".fill").forEach(f => f.style.width = f.dataset.w + "%");
+    io.unobserve(en.target);
+  }
+}, { threshold:.15 });
+document.querySelectorAll(".row").forEach(r => io.observe(r));
+
+/* podium rises after load */
+setTimeout(() => document.querySelectorAll(".pod").forEach((p,i) =>
+  setTimeout(() => p.classList.add("raised"), i*180)), 350);
+
+/* ═══════════════ fancy js part I: scramble-decode titles ═══════════════ */
+const GLYPHS = "!<>-_\\/[]{}—=+*^?#01DEPKSAHPU";
+function scramble(el, finalText, dur=900) {
+  const chars = [...finalText.replace(/\u00a0/g," ")];
+  const start = performance.now();
+  (function frame(now) {
+    const t = Math.min(1, (now - start) / dur);
+    el.textContent = chars.map((c, i) => {
+      if (c === " ") return "\u00a0";
+      const reveal = i / chars.length;
+      return t > reveal ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    }).join("");
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = finalText;
+  })(start);
+}
+const titles = [...document.querySelectorAll("[data-scramble]")];
+document.getElementById("scrambleBtn").addEventListener("click", () =>
+  titles.forEach((el, i) => setTimeout(() => scramble(el, el.dataset.scramble, 800), i * 120)));
+titles.forEach((el, i) => setTimeout(() => scramble(el, el.dataset.scramble, 1100), 250 + i * 250));
+
+/* ═══════════════ fancy js part II: parallax starfield ═══════════════ */
+const cv = document.getElementById("stars"), cx = cv.getContext("2d");
+let W, H, stars = [], mouse = {x:.5, y:.5};
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function resize() {
+  W = cv.width = innerWidth * devicePixelRatio;
+  H = cv.height = innerHeight * devicePixelRatio;
+  stars = Array.from({length: Math.min(220, (innerWidth*innerHeight)/9000)}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: (Math.random()*1.4+.3)*devicePixelRatio,
+    z: Math.random()*.8+.2, tw: Math.random()*6.28,
+    hue: Math.random()<.12 ? "255,212,94" : "200,205,255"
+  }));
+}
+addEventListener("resize", resize); resize();
+addEventListener("pointermove", e => { mouse.x=e.clientX/innerWidth; mouse.y=e.clientY/innerHeight; });
+(function draw(now) {
+  cx.clearRect(0,0,W,H);
+  for (const s of stars) {
+    const px = (mouse.x-.5)*60*s.z*devicePixelRatio, py = (mouse.y-.5)*40*s.z*devicePixelRatio;
+    const a = .35 + .6*Math.abs(Math.sin(now/1400 + s.tw));
+    cx.beginPath();
+    cx.arc(s.x - px, (s.y + (REDUCED?0:now*0.006*s.z)) % H - py, s.r, 0, 6.283);
+    cx.fillStyle = `rgba(${s.hue},${a*s.z})`;
+    cx.fill();
+  }
+  if (!REDUCED) requestAnimationFrame(draw);
+})(0);
+
+/* ═══════════════ fancy js part III: coronation confetti ═══════════════ */
+const PAL = ["#ffd45e","#22d3ee","#f0a6ca","#7aa2ff","#e08a4d","#ffffff"];
+function burst(n=180) {
+  const layer = document.createElement("div");
+  Object.assign(layer.style, {position:"fixed",inset:0,zIndex:99,pointerEvents:"none",overflow:"hidden"});
+  document.body.appendChild(layer);
+  for (let i=0;i<n;i++) {
+    const p = document.createElement("i");
+    const x = innerWidth*(.3+Math.random()*.4), y = innerHeight*.25;
+    const dx = (Math.random()-.5)*innerWidth*.9, dy = -Math.random()*innerHeight*.6 - 100;
+    p.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${4+Math.random()*7}px;height:${6+Math.random()*10}px;`
+      + `background:${PAL[i%PAL.length]};border-radius:2px;will-change:transform;opacity:1`;
+    layer.appendChild(p);
+    p.animate([
+      {transform:"translate(0,0) rotate(0deg)", opacity:1},
+      {transform:`translate(${dx*.5}px,${dy}px) rotate(${Math.random()*720-360}deg)`, opacity:1, offset:.45},
+      {transform:`translate(${dx}px,${dy+innerHeight*1.2}px) rotate(${Math.random()*1080}deg)`, opacity:.9}
+    ], {duration:1600+Math.random()*1400, easing:"cubic-bezier(.2,.6,.35,1)"}).onfinish = () => p.remove();
+  }
+  setTimeout(() => layer.remove(), 3200);
+}
+document.getElementById("confettiBtn").addEventListener("click", () => {
+  burst();
+  const champ = document.querySelector(".pod.first .name");
+  const orig = champ.textContent;
+  scramble(champ, "👑 CHAMPION 👑", 700);
+  setTimeout(() => champ.textContent = orig, 1900);
+});
+document.getElementById("topBtn").addEventListener("click", () =>
+  document.getElementById("podium").scrollIntoView({behavior:"smooth", block:"center"}));
+
+})();
+</script>
+</body>
+</html>
