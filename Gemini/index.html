@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-state="off-peak">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<meta name="theme-color" id="themeColor" content="#4d6bfe" />
+<title>DeepSeek API — Peak &amp; Off-Peak Hours for Your Location</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Host+Grotesk:wght@500;600;700&family=Fragment+Mono&display=swap" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── The loudest thing on the page: always-visible state banner ── -->
+<div class="state-banner" id="stateBanner">
+  <span class="state-banner__badge">
+    <i class="state-banner__dot" aria-hidden="true"></i>
+    <span id="bannerBadge">Off-peak</span>
+  </span>
+  <span class="state-banner__text" id="bannerText">
+    <strong>50% off</strong> — you are in off-peak hours
+  </span>
+  <span class="state-banner__count" id="bannerCount">changes in --:--:--</span>
+</div>
+
+<p class="sr-only" id="stateAnnounce">Off-peak hours.</p>
+
+<main class="app">
+
+  <header class="hero">
+    <p class="eyebrow">DeepSeek API</p>
+    <h1>Peak &amp; off-peak hours<br><span>in your time zone</span></h1>
+    <p class="hero-sub">
+      Peak windows are fixed in <strong>UTC</strong> — <strong>01:00–04:00</strong> and
+      <strong>06:00–10:00</strong>, Monday to Friday, excluding Chinese public holidays.
+      Everything else is off-peak, and off-peak costs <strong>exactly half</strong>.
+    </p>
+  </header>
+
+  <!-- ── Live status ────────────────────────────────────────── -->
+  <section class="status-card" id="statusCard" data-state="off-peak" aria-label="Current pricing state">
+    <div class="status-top">
+      <span class="badge" id="statusBadge">Off-peak</span>
+      <div class="status-copy">
+        <p class="status-desc" id="statusDesc">—</p>
+        <p class="status-rate" id="statusRate">—</p>
+      </div>
+    </div>
+    <div class="status-grid">
+      <div class="stat">
+        <span class="stat-label">Your local time</span>
+        <span class="stat-value" id="localClock">--:--:--</span>
+        <span class="stat-sub" id="localDate">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">UTC (reference)</span>
+        <span class="stat-value" id="utcClock">--:--:--</span>
+        <span class="stat-sub" id="utcDate">—</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label" id="nextLabel">Next change</span>
+        <span class="stat-value" id="countdown">--:--:--</span>
+        <span class="stat-sub" id="nextAt">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Controls ───────────────────────────────────────────── -->
+  <section class="controls" aria-label="Settings">
+    <div class="control">
+      <label for="tzSelect">Your location / time zone</label>
+      <select id="tzSelect"></select>
+      <p class="hint" id="tzHint">—</p>
+    </div>
+    <div class="control">
+      <label class="check" for="holidayToggle">
+        <input type="checkbox" id="holidayToggle" />
+        <span>Today is a Chinese public holiday</span>
+      </label>
+      <p class="hint">DeepSeek waives peak pricing for the whole day on Chinese public holidays. Flip this on those days.</p>
+    </div>
+  </section>
+
+  <!-- ── Week view ──────────────────────────────────────────── -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Week at a glance</h2>
+      <p class="panel-sub" id="weekSub">—</p>
+    </div>
+
+    <div class="week" id="week"></div>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot dot-peak"></i> Peak — full rate</span>
+      <span class="legend-item"><i class="dot dot-off"></i> Off-peak — 50% off</span>
+      <span class="legend-item"><i class="dot dot-now"></i> Right now</span>
+    </div>
+  </section>
+
+  <!-- ── Rates ──────────────────────────────────────────────── -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Rates</h2>
+      <p class="panel-sub">USD per 1M tokens · shown as <strong>off-peak / peak</strong></p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="rates">
+        <thead>
+          <tr>
+            <th scope="col">Model</th>
+            <th scope="col">Input<br><small>cache hit</small></th>
+            <th scope="col">Input<br><small>cache miss</small></th>
+            <th scope="col">Output</th>
+            <th scope="col">Concurrency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><span class="model">deepseek-flash</span><small>DeepSeek-V4.1-Flash</small></th>
+            <td>$0.003 / $0.006</td>
+            <td>$0.15 / $0.30</td>
+            <td>$0.60 / $1.20</td>
+            <td>2,500</td>
+          </tr>
+          <tr>
+            <th scope="row"><span class="model">deepseek-v4-pro</span><small>DeepSeek-V4-Pro-0813</small></th>
+            <td>$0.022 / $0.044</td>
+            <td>$0.66 / $1.32</td>
+            <td>$1.98 / $3.96</td>
+            <td>500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Notes ──────────────────────────────────────────────── -->
+  <footer class="notes">
+    <h2>Good to know</h2>
+    <ul>
+      <li><strong>Off-peak = 50% of peak.</strong> Peak hours are 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday.</li>
+      <li><strong>Weekends are always off-peak</strong> — the entire Saturday and Sunday, all day.</li>
+      <li><strong>Chinese public holidays are off-peak</strong> for the full day. Dates follow the State Council calendar and aren't computed here — use the toggle above.</li>
+      <li>Fees are deducted from your granted balance first, then your topped-up balance.</li>
+      <li>Prices can change; DeepSeek reserves the right to adjust them.</li>
+    </ul>
+  </footer>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
